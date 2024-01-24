@@ -1,0 +1,15 @@
+{
+  "name": "stare",
+  "version": "0.0.0",
+  "description": "Small utility program to watch and render images that changed",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "author": "feSM",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.1.4"
+  }
+}
