@@ -6,7 +6,7 @@
     directory_select_element.addEventListener('click', async (event) => {
         event.preventDefault();
 
-        const {directory, images} = await window.electronAPI.openDirectory();
+        const {directory, images} = await window.API.openDirectory();
 
         directory_element.innerText = "Selected directory : " + directory;
     
@@ -17,6 +17,10 @@
             img.className = "img-thumbnail";
             image_element.appendChild(img);
         }
+    })
+
+    window.API.fileChange((filename) => {
+        console.log('from renderer', filename);
     })
 })();
 
