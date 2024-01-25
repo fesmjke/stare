@@ -1,12 +1,32 @@
 const {app, BrowserWindow, ipcMain, dialog} = require('electron');
 const fs = require("node:fs/promises");
+const chokidar = require('chokidar');
 const path = require('node:path');
 
 const EXT_PNG = '.png';
 
 const state = {
     directory: "",
-    images: []
+    images: [],
+}
+
+let win;
+let observer;
+
+function startMonitoring(filePath) {
+  observer = chokidar.watch(filePath, {
+    ignored: /(^|[\/\\])\../, // ignore dotfiles
+    persistent: true
+  });
+
+  observer.on('change', (path) => {
+    console.log(`File ${path} changed.`);
+    win.webContents.send('file-change', path);
+  });
+
+  observer.on('unlink', (path) => {
+    console.log(`File ${path} deleted.`);
+  });
 }
 
 const loadImages = async (directory) => {
@@ -24,6 +44,7 @@ const selectDirectory = async () => {
     if (!canceled) {
         state.directory = filePaths[0];
         state.images = await loadImages(state.directory);
+        state.images.forEach(startMonitoring);
         return {directory: filePaths[0], images: state.images}
     }
 }
@@ -31,7 +52,7 @@ const selectDirectory = async () => {
 const isDev = process.env.NODE_ENV !== 'development';
 
 const createWindow = () => {
-    const win = new BrowserWindow({
+    win = new BrowserWindow({
         width: 800,
         height: 600,
         webPreferences: {
@@ -49,4 +70,8 @@ const createWindow = () => {
 app.whenReady().then(() => {
     ipcMain.handle('dialog:openDirectory', selectDirectory);
     createWindow(); 
+})
+
+app.on('before-quit', () => {
+    if(observer) observer.close();
 })
