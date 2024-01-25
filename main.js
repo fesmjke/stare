@@ -2,8 +2,7 @@ const {app, BrowserWindow, ipcMain, dialog} = require('electron');
 const fs = require("node:fs/promises");
 const path = require('node:path');
 
-const EXT_PPM = '.ppm';
-const EXT_BMP = '.bmp';
+const EXT_PNG = '.png';
 
 const state = {
     directory: "",
@@ -14,7 +13,7 @@ const loadImages = async (directory) => {
     const files = await fs.readdir(directory);
     
     const images_path = files.filter(file => {
-        return path.extname(file).toLowerCase() === EXT_PPM || path.extname(file).toLowerCase() === EXT_BMP 
+        return path.extname(file) === EXT_PNG
     }).map(file => {return path.join(directory, file)});
     
     return images_path
@@ -25,7 +24,7 @@ const selectDirectory = async () => {
     if (!canceled) {
         state.directory = filePaths[0];
         state.images = await loadImages(state.directory);
-        return filePaths[0]
+        return {directory: filePaths[0], images: state.images}
     }
 }
 
