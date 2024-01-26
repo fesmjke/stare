@@ -9,13 +9,24 @@
         const {directory, images} = await window.API.openDirectory();
 
         directory_element.innerText = "Selected directory : " + directory;
-    
+        directory_element.className = "lead";
+
         for (const image_path of images) {
+            const figure = document.createElement('figure');
+            figure.className = "figure";
+                
+            image_element.appendChild(figure);
+
             const img = document.createElement('img');
 
             img.src = image_path;
-            img.className = "img-thumbnail";
-            image_element.appendChild(img);
+            img.className = "img-thumbnail mx-auto d-block";
+            figure.appendChild(img);
+            
+            const figcaption = document.createElement('figcaption');
+            figcaption.innerText = image_path;
+            figcaption.className = "figure-caption text-center";
+            figure.appendChild(figcaption);
         }
     })
 
