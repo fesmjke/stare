@@ -7,7 +7,7 @@ const EXT_PNG = '.png';
 
 const state = {
     directory: "",
-    images: [],
+    images: {},
 }
 
 let win;
@@ -32,20 +32,30 @@ function startMonitoring(filePath) {
 const loadImages = async (directory) => {
     const files = await fs.readdir(directory);
     
-    const images_path = files.filter(file => {
+    const image_base = files.filter(file => {
         return path.extname(file) === EXT_PNG
-    }).map(file => {return path.join(directory, file)});
+    });
     
-    return images_path
+    const image_full_path = image_base.map((file) => {
+        return path.join(directory, file);
+    })
+
+    return {image_base, image_full_path} 
 }
 
 const selectDirectory = async () => {
     const {canceled, filePaths} = await dialog.showOpenDialog({properties: ['openDirectory']});
     if (!canceled) {
         state.directory = filePaths[0];
-        state.images = await loadImages(state.directory);
-        state.images.forEach(startMonitoring);
-        return {directory: filePaths[0], images: state.images}
+        const {image_base, image_full_path} = await loadImages(state.directory);
+
+        state.images = {
+            base: image_base,
+            path: image_full_path
+        }
+
+        image_full_path.forEach(startMonitoring);
+        return {directory: filePaths[0], image_base, image_full_path}
     }
 }
 
