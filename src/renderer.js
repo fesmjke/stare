@@ -31,8 +31,9 @@
         }
     })
 
-    window.API.fileChange((filename) => {
-        console.log('from renderer', filename);
+    window.API.fileChange(({base, fullPath, date}) => {
+        const img = document.getElementById(base);
+        img.src = fullPath + `?${date}`;
     })
 })();
 
