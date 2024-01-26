@@ -16,16 +16,19 @@ let observer;
 function startMonitoring(filePath) {
   observer = chokidar.watch(filePath, {
     ignored: /(^|[\/\\])\../, // ignore dotfiles
-    persistent: true
+    persistent: true,
+    alwaysStat: true
   });
 
-  observer.on('change', (path) => {
-    console.log(`File ${path} changed.`);
-    win.webContents.send('file-change', path);
+  observer.on('change', (fullPath, stats) => {
+    const date = stats.mtime.toLocaleString('en-US', { timeZoneName: 'short' });
+    console.log(`File ${fullPath} changed. ${date}`);
+    const base = path.basename(fullPath);
+    win.webContents.send('file-change', {base, fullPath, date});
   });
 
-  observer.on('unlink', (path) => {
-    console.log(`File ${path} deleted.`);
+  observer.on('unlink', (fpath) => {
+    console.log(`File ${fpath} deleted.`);
   });
 }
 
